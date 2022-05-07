@@ -1,1 +1,12 @@
-<p>home works!</p>
+<div class="title-logo"><app-title-logo></app-title-logo></div>
+
+<div
+  class="section-container"
+  [ngClass]="{ col: screenSize === 'XSmall' || screenSize === 'Small' }"
+>
+  <ng-container *ngFor="let section of landingPageSection">
+    <app-thumbnail-section
+      [landingPageSection]="section"
+    ></app-thumbnail-section>
+  </ng-container>
+</div>

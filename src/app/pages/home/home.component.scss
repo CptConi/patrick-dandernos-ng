@@ -1,0 +1,18 @@
+.title-logo {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.section-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 1rem;
+  max-width: 100%;
+
+  &.col {
+    flex-direction: column;
+  }
+}
