@@ -1,7 +1,5 @@
-import { LandingPageCategory } from '../enum/landing-page-category.enum';
-
 export interface LandingPageSection {
-  category: LandingPageCategory;
+  category: string;
   description: string;
   fullsizePath: string;
   halfsizePath: string;

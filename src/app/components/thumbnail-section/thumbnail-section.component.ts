@@ -1,15 +1,51 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { take } from 'rxjs/operators';
+import { sectionInfosByCategory } from 'src/app/enum/section-infos-by-category';
 import { LandingPageSection } from 'src/app/models/landing-page-section.model';
+import { HttpService } from 'src/app/services/http.service';
 
 @Component({
   selector: 'app-thumbnail-section',
   templateUrl: './thumbnail-section.component.html',
   styleUrls: ['./thumbnail-section.component.scss'],
 })
-export class ThumbnailSectionComponent implements OnInit {
-  @Input() landingPageSection!: LandingPageSection;
+export class ThumbnailSectionComponent {
+  @Input() landingPageSection: LandingPageSection;
+  @Input() screenSize!: string;
 
-  constructor() {}
+  public get displayLogoOnThumbnail(): boolean {
+    return this.screenSize === 'XSmall' || this.screenSize === 'Small';
+  }
 
-  ngOnInit(): void {}
+  public get sectionTitle(): string {
+    // @ts-ignore
+    return sectionInfosByCategory.get(this.landingPageSection.category)?.name;
+  }
+  public get sectionDescription(): string {
+    // @ts-ignore
+    return sectionInfosByCategory.get(this.landingPageSection.category)
+      ?.description;
+  }
+  public get sectionIcon(): string {
+    // @ts-ignore
+    return sectionInfosByCategory.get(this.landingPageSection.category)?.icon;
+  }
+  public get sectionURL(): string {
+    // @ts-ignore
+    return sectionInfosByCategory.get(this.landingPageSection.category)
+      ?.urlLink;
+  }
+  public get sectionFont(): any {
+    // @ts-ignore
+    return sectionInfosByCategory.get(this.landingPageSection.category)?.font;
+  }
+
+  constructor(private httpService: HttpService) {}
+
+  public testAPI() {
+    this.httpService
+      .getGalleryFromCategory(this.landingPageSection.category)
+      .pipe(take(1))
+      .subscribe(() => {});
+  }
 }

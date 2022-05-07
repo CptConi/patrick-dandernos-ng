@@ -1,3 +1,14 @@
 <div class="thumbnail-container">
-  <img [src]="landingPageSection?.miniaturePath" />
+  <div>
+    <button mat-button (click)="testAPI()">CALL API TEST</button>
+    <h2
+      [ngClass]="{ hidden: !displayLogoOnThumbnail }"
+      class="thumbnail-title"
+      [ngStyle]="sectionFont"
+    >
+      {{ sectionTitle }}
+    </h2>
+    <img class="visible" [src]="landingPageSection?.miniaturePath" />
+  </div>
+  <img class="ambilight" [src]="landingPageSection?.miniaturePath" />
 </div>

@@ -22,12 +22,7 @@ const Components = [
 ];
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    Components,
-    TitleLogoComponent,
-    ThumbnailSectionComponent,
-  ],
+  declarations: [AppComponent, Components],
   exports: [Components],
   imports: [
     BrowserModule,
