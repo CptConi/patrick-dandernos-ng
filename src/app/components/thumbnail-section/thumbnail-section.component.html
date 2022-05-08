@@ -1,25 +1,40 @@
-<div class="thumbnail-container" (click)="setActiveCategory()">
-  <div>
-    <h2
-      [ngClass]="{ hidden: !displayLogoOnThumbnail }"
-      class="thumbnail-title"
-      [ngStyle]="sectionFont"
-    >
+<div class="flex-wrapper">
+  <div
+    class="thumbnail-container"
+    [ngStyle]="{ 'min-width': !smallDevice ? '500px' : '' }"
+    (click)="setActiveCategory()"
+  >
+    <div>
+      <h2
+        [ngClass]="{ hidden: !smallDevice }"
+        class="thumbnail-title"
+        [ngStyle]="sectionFont"
+      >
+        {{ sectionTitle }}
+      </h2>
+      <img
+        class="visible"
+        [ngClass]="{ active: active }"
+        [src]="landingPageSection?.miniaturePath"
+      />
+    </div>
+    <img class="ambilight" [src]="landingPageSection?.miniaturePath" />
+    <div *ngIf="active" class="description">
+      {{ sectionDescription }}
+    </div>
+    <div class="to-gallery-button" *ngIf="active">
+      <button mat-icon-button color="primary" (click)="toGallery($event)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div *ngIf="!smallDevice" class="infos-container">
+    <h2 class="thumbnail-title aside" [ngStyle]="sectionFont">
       {{ sectionTitle }}
     </h2>
-    <img
-      class="visible"
-      [ngClass]="{ active: active }"
-      [src]="landingPageSection?.miniaturePath"
-    />
-  </div>
-  <img class="ambilight" [src]="landingPageSection?.miniaturePath" />
-  <div *ngIf="active" class="description">
-    {{ sectionDescription }}
-  </div>
-  <div class="to-gallery-button" *ngIf="active">
-    <button mat-icon-button color="primary" (click)="toGallery($event)">
-      <mat-icon>chevron_right</mat-icon>
+    <p>{{ sectionDescription }}</p>
+    <button mat-stroked-button color="primary" (click)="toGallery($event)">
+      Vers la Galerie <mat-icon>chevron_right</mat-icon>
     </button>
   </div>
 </div>

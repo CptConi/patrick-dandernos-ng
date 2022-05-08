@@ -12,8 +12,15 @@
   align-items: center;
   padding: 1rem 1rem;
   max-width: 100%;
+  &.flex-start {
+    align-items: flex-start;
+    p {
+      align-self: center;
+      margin-bottom: 3rem;
+    }
+  }
 }
-.col {
+.centered {
   display: flex;
   flex-direction: column;
   justify-content: center;

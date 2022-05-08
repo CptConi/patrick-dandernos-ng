@@ -6,10 +6,17 @@
   <a mat-tab-link [routerLink]="'/contact'">Contact</a>
 </nav>
 
-<div class="section-container">
+<div
+  class="section-container"
+  [ngClass]="{
+    'flex-start': screenSize !== 'XSmall' && screenSize !== 'Small'
+  }"
+>
   <p>Accès aux galeries:</p>
   <div
-    [ngClass]="{ col: screenSize === 'XSmall' || screenSize === 'Small' }"
+    [ngClass]="{
+      centered: screenSize === 'XSmall' || screenSize === 'Small'
+    }"
     [@fadeIn]="landingPageSection.length"
   >
     <ng-container *ngFor="let section of landingPageSection">

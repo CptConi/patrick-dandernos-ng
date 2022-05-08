@@ -5,7 +5,7 @@ export const sectionInfosByCategory = new Map([
       name: 'Au Café des graphistes',
       font: { fontFamily: 'Overlock SC', fontWeight: 100 },
       icon: 'brush',
-      description: 'Retouche et manipulations',
+      description: 'Retouches et manipulations',
       urlLink: '/au-cafe-des-graphistes',
     },
   ],

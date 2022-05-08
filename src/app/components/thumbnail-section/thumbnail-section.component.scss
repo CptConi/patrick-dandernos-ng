@@ -1,3 +1,8 @@
+.flex-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
 .thumbnail-container {
   position: relative;
   img {
@@ -44,6 +49,13 @@
   color: white;
   margin-top: -10px;
   z-index: 10;
+
+  &.aside {
+    position: inherit;
+    margin-top: -2px;
+    margin-left: 2rem;
+    font-size: 2.9rem;
+  }
 }
 
 .to-gallery-button {
@@ -54,5 +66,21 @@
     .material-icons {
       font-size: 48px;
     }
+  }
+}
+
+.infos-container {
+  display: flex;
+  flex-direction: column;
+
+  p {
+    padding-left: 4rem;
+  }
+
+  button {
+    margin-top: auto;
+    margin-bottom: 4rem;
+    margin-left: 4rem;
+    width: 350px;
   }
 }

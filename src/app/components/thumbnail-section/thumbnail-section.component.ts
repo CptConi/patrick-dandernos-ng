@@ -16,7 +16,7 @@ export class ThumbnailSectionComponent {
 
   @Output() activeCategory = new EventEmitter<string>();
 
-  public get displayLogoOnThumbnail(): boolean {
+  public get smallDevice(): boolean {
     return this.screenSize === 'XSmall' || this.screenSize === 'Small';
   }
 
@@ -53,11 +53,16 @@ export class ThumbnailSectionComponent {
   }
 
   public setActiveCategory() {
+    if (!this.smallDevice) {
+      return;
+    }
     this.activeCategory.emit(this.landingPageSection.category);
   }
 
   public toGallery(event: MouseEvent) {
-    this.activeCategory.emit(this.landingPageSection.category);
+    if (this.smallDevice) {
+      this.activeCategory.emit(this.landingPageSection.category);
+    }
     console.log('going to ' + this.landingPageSection.category);
   }
 }
