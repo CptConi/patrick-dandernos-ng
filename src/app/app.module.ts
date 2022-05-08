@@ -14,6 +14,7 @@ import { AboutComponent } from './pages/about/about.component';
 import { ErrorNotFoundComponent } from './pages/error-not-found/error-not-found.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ContactComponent } from './pages/contact/contact.component';
 
 const Components = [
   HomeComponent,
@@ -25,7 +26,7 @@ const Components = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, Components],
+  declarations: [AppComponent, Components, ContactComponent],
   exports: [Components],
   imports: [
     BrowserModule,
