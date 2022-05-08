@@ -1,1 +1,7 @@
-<p>about works!</p>
+<div class="title-logo"><app-title-logo></app-title-logo></div>
+
+<nav mat-tab-nav-bar>
+  <a mat-tab-link [routerLink]="'/home'">Accueil</a>
+  <a mat-tab-link [active]="true">À Propos</a>
+  <a mat-tab-link>Contact</a>
+</nav>

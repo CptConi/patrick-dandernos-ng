@@ -1,6 +1,5 @@
-<div class="thumbnail-container">
+<div class="thumbnail-container" (click)="setActiveCategory()">
   <div>
-    <button mat-button (click)="testAPI()">CALL API TEST</button>
     <h2
       [ngClass]="{ hidden: !displayLogoOnThumbnail }"
       class="thumbnail-title"
@@ -8,7 +7,19 @@
     >
       {{ sectionTitle }}
     </h2>
-    <img class="visible" [src]="landingPageSection?.miniaturePath" />
+    <img
+      class="visible"
+      [ngClass]="{ active: active }"
+      [src]="landingPageSection?.miniaturePath"
+    />
   </div>
   <img class="ambilight" [src]="landingPageSection?.miniaturePath" />
+  <div *ngIf="active" class="description">
+    {{ sectionDescription }}
+  </div>
+  <div class="to-gallery-button" *ngIf="active">
+    <button mat-icon-button color="primary" (click)="toGallery($event)">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
 </div>
