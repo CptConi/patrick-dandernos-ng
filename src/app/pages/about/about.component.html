@@ -6,7 +6,12 @@
   <a mat-tab-link [routerLink]="'/contact'">Contact</a>
 </nav>
 
-<div class="about-container" [@fadeIn]>
+<div
+  class="about-container"
+  [@fadeIn]
+  [ngClass]="{ smallDevice: smallDevice, laptop: !smallDevice }"
+>
+  <h2>À propos</h2>
   <p>Patrick d'Andernos...un jeune de 60 ans.</p>
   <p>
     Il a été élevé à l'argentique et aux "chasseurs d'images" dès le début des

@@ -8,19 +8,40 @@
 .about-container {
   height: 100%;
   padding: 4rem 1rem;
-  background: url("../../../assets/images/about-picture-crop.jpg");
-  background-position: 75% 30%;
-  background-repeat: no-repeat;
+
   p {
     padding: 5px 10px;
     border-radius: 20px;
     margin: auto;
-    width: 85%;
+    margin-left: 10%;
+    width: 75%;
     text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
       1px 1px 2px #000;
     backdrop-filter: blur(3px);
     font-size: 20px;
     color: #ccc;
     margin-bottom: 25px;
+  }
+
+  h2 {
+    margin-left: 12%;
+    color: #69f0ae;
+    font-size: 2rem;
+  }
+
+  &.smallDevice {
+    background: url("../../../assets/images/about-picture-crop.jpg");
+    background-position: 75% 30%;
+    background-repeat: no-repeat;
+  }
+  &.laptop {
+    background: url("../../../assets/images/about-picture.jpg");
+    background-position: 25% 30%;
+    background-repeat: no-repeat;
+
+    p {
+      width: 40%;
+      max-width: 400px;
+    }
   }
 }

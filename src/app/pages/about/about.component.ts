@@ -1,5 +1,6 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'app-about',
@@ -16,7 +17,14 @@ import { Component, OnInit } from '@angular/core';
   ],
 })
 export class AboutComponent implements OnInit {
-  constructor() {}
+  public get screenSize(): string {
+    return this.screenSizeService.currentScreenSize;
+  }
+  public get smallDevice(): boolean {
+    return this.screenSize === 'XSmall' || this.screenSize === 'Small';
+  }
+
+  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {}
 }
