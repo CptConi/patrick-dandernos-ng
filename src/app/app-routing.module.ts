@@ -25,7 +25,15 @@ const routes: Routes = [
     component: ContactComponent,
   },
   {
-    path: 'gallery',
+    path: 'mondes-macros',
+    component: GalleryComponent,
+  },
+  {
+    path: 'au-cafe-des-graphistes',
+    component: GalleryComponent,
+  },
+  {
+    path: 'studio-portrait',
     component: GalleryComponent,
   },
   {
