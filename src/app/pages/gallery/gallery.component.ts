@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { sectionInfosByCategory } from 'src/app/enum/section-infos-by-category';
 import { HttpService } from 'src/app/services/http.service';
 
 @Component({
@@ -17,19 +16,6 @@ export class GalleryComponent implements OnInit {
   public currentCategory: string;
   public pictureList: any[] = [];
 
-  public get sectionTitle(): string {
-    // @ts-ignore
-    return sectionInfosByCategory.get(this.currentCategory)?.name;
-  }
-  public get sectionIcon(): string {
-    // @ts-ignore
-    return sectionInfosByCategory.get(this.currentCategory)?.icon;
-  }
-  public get sectionFont(): any {
-    // @ts-ignore
-    return sectionInfosByCategory.get(this.currentCategory)?.font;
-  }
-
   constructor(private http: HttpService) {
     // @ts-ignore
     this.currentCategory = this.categoryFromPathname.get(
@@ -43,7 +29,7 @@ export class GalleryComponent implements OnInit {
       .pipe(take(1))
       .subscribe((galerie) => {
         console.log(galerie);
-        this.pictureList = galerie as any[];
+        this.pictureList = (galerie as any[]).reverse();
       });
   }
 }

@@ -1,0 +1,12 @@
+<div class="icons-container">
+  <ng-container *ngFor="let category of sectionInfosByCategory | keyvalue">
+    <mat-icon
+      [routerLink]="[category.value.urlLink]"
+      [ngClass]="{ active: category.key === active }"
+      >{{ category.value.icon }}</mat-icon
+    >
+  </ng-container>
+</div>
+<div class="title-container">
+  <h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
+</div>

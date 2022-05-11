@@ -1,0 +1,21 @@
+.icons-container {
+  padding-top: 8px;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 50%;
+
+  .mat-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 35px;
+    color: #333;
+
+    &.active {
+      color: #ccc;
+      filter: drop-shadow(0 0 3px #7b1fa2);
+    }
+  }
+}

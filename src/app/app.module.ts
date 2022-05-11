@@ -11,10 +11,11 @@ import { AppComponent } from './app.component';
 import { ThumbnailSectionComponent } from './components/thumbnail-section/thumbnail-section.component';
 import { TitleLogoComponent } from './components/title-logo/title-logo.component';
 import { AboutComponent } from './pages/about/about.component';
+import { ContactComponent } from './pages/contact/contact.component';
 import { ErrorNotFoundComponent } from './pages/error-not-found/error-not-found.component';
+import { GalleryNavbarComponent } from './pages/gallery/gallery-navbar/gallery-navbar.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { HomeComponent } from './pages/home/home.component';
-import { ContactComponent } from './pages/contact/contact.component';
 
 const Components = [
   HomeComponent,
@@ -23,10 +24,12 @@ const Components = [
   GalleryComponent,
   TitleLogoComponent,
   ThumbnailSectionComponent,
+  GalleryNavbarComponent,
+  ContactComponent,
 ];
 
 @NgModule({
-  declarations: [AppComponent, Components, ContactComponent],
+  declarations: [AppComponent, Components],
   exports: [Components],
   imports: [
     BrowserModule,

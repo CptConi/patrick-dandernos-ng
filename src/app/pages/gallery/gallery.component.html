@@ -1,4 +1,4 @@
-<h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
+<app-gallery-navbar [active]="currentCategory"></app-gallery-navbar>
 
 <ng-container *ngFor="let picture of pictureList">
   <img class="full-width" [src]="picture.halfSizePath" alt="" />
