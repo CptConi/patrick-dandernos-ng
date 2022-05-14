@@ -11,6 +11,11 @@
   <div class="title-container">
     <h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
   </div>
+  <div class="material-icons-round home-button">
+    <button mat-icon-button [routerLink]="['/home']">
+      <mat-icon>home</mat-icon>
+    </button>
+  </div>
   <div class="hide-button">
     <button mat-icon-button (click)="displayNavBarAction(false)">
       <mat-icon>expand_less</mat-icon>
