@@ -15,7 +15,24 @@
 
     &.active {
       color: #ccc;
-      filter: drop-shadow(0 0 3px #7b1fa2);
+      filter: drop-shadow(0 0 0.3rem #7b1fa2);
     }
+  }
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hide-button {
+  position: fixed;
+  top: 5px;
+  right: 5px;
+
+  &bgc {
+    background-color: black;
   }
 }

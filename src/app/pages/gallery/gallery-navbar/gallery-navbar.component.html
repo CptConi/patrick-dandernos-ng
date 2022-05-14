@@ -1,12 +1,26 @@
-<div class="icons-container">
-  <ng-container *ngFor="let category of sectionInfosByCategory | keyvalue">
-    <mat-icon
-      [routerLink]="[category.value.urlLink]"
-      [ngClass]="{ active: category.key === active }"
-      >{{ category.value.icon }}</mat-icon
-    >
-  </ng-container>
+<div *ngIf="isNavBarDisplayed; else showButton" [@inOutAnimation]>
+  <div class="icons-container">
+    <ng-container *ngFor="let category of sectionInfosByCategory | keyvalue">
+      <mat-icon
+        [routerLink]="[category.value.urlLink]"
+        [ngClass]="{ active: category.key === active }"
+        >{{ category.value.icon }}</mat-icon
+      >
+    </ng-container>
+  </div>
+  <div class="title-container">
+    <h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
+  </div>
+  <div class="hide-button">
+    <button mat-icon-button (click)="displayNavBarAction(false)">
+      <mat-icon>expand_less</mat-icon>
+    </button>
+  </div>
 </div>
-<div class="title-container">
-  <h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
-</div>
+<ng-template #showButton>
+  <div class="hide-button bgc">
+    <button color="none" mat-mini-fab (click)="displayNavBarAction(true)">
+      <mat-icon>expand_more</mat-icon>
+    </button>
+  </div>
+</ng-template>

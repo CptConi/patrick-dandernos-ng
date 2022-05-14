@@ -1,5 +1,22 @@
-<app-gallery-navbar [active]="currentCategory"></app-gallery-navbar>
+<div class="sticky-top">
+  <app-gallery-navbar [active]="currentCategory"></app-gallery-navbar>
+</div>
 
-<ng-container *ngFor="let picture of pictureList">
-  <img class="full-width" [src]="picture.halfSizePath" alt="" />
-</ng-container>
+<div [@fadeIn]="pictureList.length">
+  <ng-container *ngFor="let picture of pictureList; let i = index">
+    <div class="img-container">
+      <img
+        class="full-width"
+        [src]="picture.halfSizePath"
+        [alt]="picture.description"
+        (click)="setImageFullscreenable(i)"
+      />
+      <mat-icon
+        *ngIf="indexFullscreenablePicture === i"
+        [@inOutAnimation]
+        (click)="openFullscreenPictureInNewTab(i)"
+        >fullscreen</mat-icon
+      >
+    </div>
+  </ng-container>
+</div>
