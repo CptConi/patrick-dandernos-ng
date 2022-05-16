@@ -2,21 +2,38 @@
   <app-gallery-navbar [active]="currentCategory"></app-gallery-navbar>
 </div>
 
-<div [@fadeIn]="pictureList.length">
-  <ng-container *ngFor="let picture of pictureList; let i = index">
-    <div class="img-container">
-      <img
-        class="full-width"
-        [src]="picture.halfSizePath"
-        [alt]="picture.description"
-        (click)="setImageFullscreenable(i)"
-      />
-      <mat-icon
-        *ngIf="indexFullscreenablePicture === i"
-        [@inOutAnimation]
-        (click)="openFullscreenPictureInNewTab(i)"
-        >fullscreen</mat-icon
-      >
-    </div>
-  </ng-container>
-</div>
+<ng-container *ngIf="smallDevice; else carouselViewer">
+  <div [@fadeIn]="pictureList.length">
+    <ng-container *ngFor="let picture of pictureList; let i = index">
+      <div class="img-container">
+        <img
+          class="full-width"
+          [src]="picture.halfSizePath"
+          [alt]="picture.description"
+          (click)="setImageFullscreenable(i)"
+        />
+        <mat-icon
+          *ngIf="indexFullscreenablePicture === i"
+          [@inOutAnimation]
+          (click)="openFullscreenPictureInNewTab(i)"
+          >fullscreen</mat-icon
+        >
+      </div>
+    </ng-container>
+  </div>
+</ng-container>
+
+<ng-template #carouselViewer>
+  <div class="carousel">
+    <button mat-icon-button (click)="previousPicture()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <img
+      *ngIf="pictureList.length > 0"
+      [src]="pictureList[activePictureIndex].halfSizePath"
+    />
+    <button mat-icon-button (click)="nextPicture()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</ng-template>

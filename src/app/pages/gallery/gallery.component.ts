@@ -2,6 +2,7 @@ import { animate, query, stagger, style, transition, trigger } from '@angular/an
 import { Component, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'app-gallery',
@@ -41,8 +42,19 @@ export class GalleryComponent implements OnInit {
   public currentCategory: string;
   public pictureList: any[] = [];
   public indexFullscreenablePicture = -1;
+  public activePictureIndex = 0;
 
-  constructor(private http: HttpService) {
+  public get screenSize(): string {
+    return this.screenSizeService.currentScreenSize;
+  }
+  public get smallDevice(): boolean {
+    return this.screenSize === 'XSmall' || this.screenSize === 'Small';
+  }
+
+  constructor(
+    private http: HttpService,
+    private screenSizeService: ScreenSizeService
+  ) {
     // @ts-ignore
     this.currentCategory = this.categoryFromPathname.get(
       window.location.pathname
@@ -70,5 +82,21 @@ export class GalleryComponent implements OnInit {
   public openFullscreenPictureInNewTab(index: number) {
     this.indexFullscreenablePicture = -1;
     window.open(this.pictureList[index].fullSizePath, '_blank');
+  }
+
+  public previousPicture() {
+    if (this.activePictureIndex === 0) {
+      this.activePictureIndex = this.pictureList.length - 1;
+      return;
+    }
+    this.activePictureIndex--;
+  }
+
+  public nextPicture() {
+    if (this.activePictureIndex < this.pictureList.length - 1) {
+      this.activePictureIndex++;
+      return;
+    }
+    this.activePictureIndex = 0;
   }
 }
