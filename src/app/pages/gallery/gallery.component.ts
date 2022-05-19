@@ -1,6 +1,8 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import FastAverageColor from 'fast-average-color';
 import { take } from 'rxjs/operators';
+import { ColorsService } from 'src/app/services/colors.service';
 import { HttpService } from 'src/app/services/http.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
@@ -33,7 +35,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
     ]),
   ],
 })
-export class GalleryComponent implements OnInit {
+export class GalleryComponent implements OnInit, AfterViewInit {
   private readonly categoryFromPathname = new Map<string, string>([
     ['/mondes-macros', 'macros'],
     ['/au-cafe-des-graphistes', 'graphistes'],
@@ -43,6 +45,7 @@ export class GalleryComponent implements OnInit {
   public pictureList: any[] = [];
   public indexFullscreenablePicture = -1;
   public activePictureIndex = 0;
+  // public dominantColor = '';
 
   public get screenSize(): string {
     return this.screenSizeService.currentScreenSize;
@@ -51,9 +54,12 @@ export class GalleryComponent implements OnInit {
     return this.screenSize === 'XSmall' || this.screenSize === 'Small';
   }
 
+  @ViewChild('currentPicture') currentPicture: any;
+
   constructor(
     private http: HttpService,
-    private screenSizeService: ScreenSizeService
+    private screenSizeService: ScreenSizeService,
+    private colorService: ColorsService
   ) {
     // @ts-ignore
     this.currentCategory = this.categoryFromPathname.get(
@@ -70,6 +76,8 @@ export class GalleryComponent implements OnInit {
         this.pictureList = (galerie as any[]).reverse();
       });
   }
+
+  ngAfterViewInit(): void {}
 
   public setImageFullscreenable(index: number) {
     if (this.indexFullscreenablePicture === index) {
@@ -95,8 +103,30 @@ export class GalleryComponent implements OnInit {
   public nextPicture() {
     if (this.activePictureIndex < this.pictureList.length - 1) {
       this.activePictureIndex++;
+
       return;
     }
     this.activePictureIndex = 0;
+  }
+
+  public onLoadImage(event: any) {
+    console.log(event.path[0].currentSrc);
+
+    const bg = document.querySelector('body');
+    const fac = new FastAverageColor();
+    fac
+      .getColorAsync(event.path[0].currentSrc)
+      .then((color) => {
+        if (bg) {
+          bg.style.backgroundImage = 'none';
+          bg.style.backgroundColor = color.rgba;
+          bg.style.color = color.isDark ? '#fff' : '#000';
+        }
+
+        console.log('Average color', color);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }
 }

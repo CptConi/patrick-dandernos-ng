@@ -9,4 +9,5 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   color: rgb(230, 230, 230);
   background: linear-gradient(90deg, black 20%, #0d0d0f 100%);
+  transition: background-color 0.4s ease-in;
 }

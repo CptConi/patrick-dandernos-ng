@@ -31,7 +31,9 @@
     <img
       *ngIf="pictureList.length > 0"
       [src]="pictureList[activePictureIndex].halfSizePath"
+      (load)="onLoadImage($event)"
     />
+    <!-- #currentPicture -->
     <button mat-icon-button (click)="nextPicture()">
       <mat-icon>chevron_right</mat-icon>
     </button>
