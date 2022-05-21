@@ -1,5 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { sectionInfosByCategory } from 'src/app/enum/section-infos-by-category';
 
 @Component({
@@ -22,7 +23,10 @@ import { sectionInfosByCategory } from 'src/app/enum/section-infos-by-category';
 export class GalleryNavbarComponent implements OnInit {
   public sectionInfosByCategory = sectionInfosByCategory;
   public isNavBarDisplayed = true;
+  public firstOpen = true;
+
   @Input() active: string = '';
+  @Output() isDisplayed = new EventEmitter<boolean>();
 
   public get sectionTitle(): string {
     // @ts-ignore
@@ -37,11 +41,27 @@ export class GalleryNavbarComponent implements OnInit {
     return sectionInfosByCategory.get(this.active)?.font;
   }
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {}
 
   public displayNavBarAction(isDisplayed: boolean) {
+    this.isDisplayed.emit(isDisplayed);
     this.isNavBarDisplayed = isDisplayed;
+  }
+
+  public toHome() {
+    this.resetCssBackgroundStyle();
+    this.router.navigate(['/home']);
+  }
+
+  private resetCssBackgroundStyle() {
+    const bg = document.querySelector('body');
+    if (bg) {
+      bg.style.color = '#FFF';
+      bg.style.backgroundColor = '#000';
+      bg.style.backgroundImage =
+        'linear-gradient(90deg, black 20%, #0d0d0f 100%)';
+    }
   }
 }

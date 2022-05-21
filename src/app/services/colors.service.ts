@@ -11,7 +11,5 @@ export class ColorsService {
     const fac = new FastAverageColor();
 
     const color = fac.getColor(ref);
-
-    console.log(color);
   }
 }

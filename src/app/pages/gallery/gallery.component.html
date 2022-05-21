@@ -1,39 +1,54 @@
 <div class="sticky-top">
-  <app-gallery-navbar [active]="currentCategory"></app-gallery-navbar>
+  <app-gallery-navbar
+    [active]="currentCategory"
+    (isDisplayed)="isNavBarDisplayed = $event"
+  ></app-gallery-navbar>
 </div>
-
-<ng-container *ngIf="smallDevice; else carouselViewer">
-  <div [@fadeIn]="pictureList.length">
-    <ng-container *ngFor="let picture of pictureList; let i = index">
-      <div class="img-container">
-        <img
-          class="full-width"
-          [src]="picture.halfSizePath"
-          [alt]="picture.description"
-          (click)="setImageFullscreenable(i)"
-        />
-        <mat-icon
-          *ngIf="indexFullscreenablePicture === i"
-          [@inOutAnimation]
-          (click)="openFullscreenPictureInNewTab(i)"
-          >fullscreen</mat-icon
-        >
-      </div>
-    </ng-container>
-  </div>
-</ng-container>
+<div class="gallery-container" [ngClass]="{ 'no-navbar': !isNavBarDisplayed }">
+  <ng-container *ngIf="smallDevice; else carouselViewer">
+    <div [@fadeIn]="pictureList.length">
+      <ng-container *ngFor="let picture of pictureList; let i = index">
+        <div class="img-container">
+          <img
+            class="full-width"
+            [src]="picture.halfSizePath"
+            [alt]="picture.description"
+            (click)="setImageFullscreenable(i)"
+          />
+          <mat-icon
+            *ngIf="indexFullscreenablePicture === i"
+            [@inOutAnimation]
+            (click)="openFullscreenPictureInNewTab(i)"
+            >fullscreen</mat-icon
+          >
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
 
 <ng-template #carouselViewer>
   <div class="carousel">
     <button mat-icon-button (click)="previousPicture()">
       <mat-icon>chevron_left</mat-icon>
     </button>
-    <img
-      *ngIf="pictureList.length > 0"
-      [src]="pictureList[activePictureIndex].halfSizePath"
-      (load)="onLoadImage($event)"
-    />
-    <!-- #currentPicture -->
+    <div class="carousel-img-container">
+      <img
+        *ngIf="pictureList.length > 0"
+        [ngClass]="{ 'no-navbar': !isNavBarDisplayed }"
+        [src]="pictureList[activePictureIndex].halfSizePath"
+        (load)="onLoadImage($event)"
+      />
+      <div class="carousel-icon-list">
+        <button
+          mat-icon-button
+          (click)="openFullscreenPictureInNewTab(activePictureIndex)"
+        >
+          <mat-icon>hd</mat-icon>
+        </button>
+        <!-- <button mat-icon-button><mat-icon>fullscreen</mat-icon></button> -->
+      </div>
+    </div>
     <button mat-icon-button (click)="nextPicture()">
       <mat-icon>chevron_right</mat-icon>
     </button>

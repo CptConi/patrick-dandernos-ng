@@ -12,7 +12,7 @@
     <h1 [ngStyle]="sectionFont">{{ sectionTitle }}</h1>
   </div>
   <div class="material-icons-round home-button">
-    <button mat-icon-button [routerLink]="['/home']">
+    <button mat-icon-button (click)="toHome()">
       <mat-icon>home</mat-icon>
     </button>
   </div>

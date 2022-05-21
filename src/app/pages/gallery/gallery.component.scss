@@ -1,3 +1,16 @@
+.gallery-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 130px);
+  transition: height 0.4s ease-out;
+
+  &.no-navbar {
+    height: 100vh;
+  }
+}
+
 .img-container {
   position: relative;
   .full-width {
@@ -33,13 +46,40 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: calc(100%-2rem);
-  height: 100%;
+  width: calc(100% - 2rem);
+}
 
+.carousel-img-container {
+  position: relative;
+
+  img:hover ~ .carousel-icon-list,
+  .carousel-icon-list:hover {
+    opacity: 1;
+  }
+  .carousel-icon-list {
+    display: flex;
+    flex-direction: row;
+
+    transition: opacity 0.2s ease;
+    opacity: 0;
+
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+
+    button {
+      margin-left: 0.4rem;
+    }
+  }
   img {
     max-width: 85vw;
     max-height: 70vh;
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
       0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    transition: max-height 0.4s ease-out;
+
+    &.no-navbar {
+      max-height: 87vh;
+    }
   }
 }

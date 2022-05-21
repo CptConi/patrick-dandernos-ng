@@ -1,8 +1,7 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
 import FastAverageColor from 'fast-average-color';
 import { take } from 'rxjs/operators';
-import { ColorsService } from 'src/app/services/colors.service';
 import { HttpService } from 'src/app/services/http.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
@@ -45,7 +44,7 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   public pictureList: any[] = [];
   public indexFullscreenablePicture = -1;
   public activePictureIndex = 0;
-  // public dominantColor = '';
+  public isNavBarDisplayed = true;
 
   public get screenSize(): string {
     return this.screenSizeService.currentScreenSize;
@@ -54,12 +53,9 @@ export class GalleryComponent implements OnInit, AfterViewInit {
     return this.screenSize === 'XSmall' || this.screenSize === 'Small';
   }
 
-  @ViewChild('currentPicture') currentPicture: any;
-
   constructor(
     private http: HttpService,
-    private screenSizeService: ScreenSizeService,
-    private colorService: ColorsService
+    private screenSizeService: ScreenSizeService
   ) {
     // @ts-ignore
     this.currentCategory = this.categoryFromPathname.get(
@@ -72,7 +68,6 @@ export class GalleryComponent implements OnInit, AfterViewInit {
       .getGalleryFromCategory(this.currentCategory)
       .pipe(take(1))
       .subscribe((galerie) => {
-        console.log(galerie);
         this.pictureList = (galerie as any[]).reverse();
       });
   }
@@ -110,8 +105,6 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   }
 
   public onLoadImage(event: any) {
-    console.log(event.path[0].currentSrc);
-
     const bg = document.querySelector('body');
     const fac = new FastAverageColor();
     fac
@@ -128,5 +121,16 @@ export class GalleryComponent implements OnInit, AfterViewInit {
       .catch((e) => {
         console.log(e);
       });
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  keyEvent(event: KeyboardEvent) {
+    if (event.key === 'ArrowRight') {
+      this.previousPicture();
+    }
+
+    if (event.key === 'ArrowLeft') {
+      this.nextPicture();
+    }
   }
 }
