@@ -6,4 +6,58 @@
   <a mat-tab-link [active]="true">Contact</a>
 </nav>
 
-EN CONSTRUCTION
+<div class="contact-container">
+  <p>Vous pouvez retrouver davantage de clichés et activités ici :</p>
+  <div class="flex">
+    <a class="social-media-logo" href="https://www.facebook.com/galeriedarcs"
+      ><div>
+        <img src="../../../assets/images/facebook_logo.svg" alt="" /></div
+    ></a>
+    <span
+      [ngStyle]="{
+        'font-weight': 'bold',
+        'font-size': '1.5rem',
+        color: '#1a6ed8'
+      }"
+      >facebook</span
+    >
+  </div>
+
+  <div class="flex">
+    <a
+      class="social-media-logo"
+      href="https://500px.com/p/jules007?view=photos"
+    >
+      <div>
+        <img src="../../../assets/images/500px_logo.svg" alt="" />
+      </div>
+    </a>
+    <span
+      [ngStyle]="{
+        'font-weight': 'bold',
+        'font-size': '1.2rem'
+      }"
+      >500px</span
+    >
+  </div>
+  <br />
+  <p class="margin-top">Ou encore me contacter :</p>
+
+  <div class="flex">
+    <a
+      class="social-media-logo"
+      href="mailto:jules3762@gmail.com?subject=Contact depuis le site Patrick d'Andernos"
+    >
+      <div>
+        <img src="../../../assets/images/email.svg" alt="" />
+      </div>
+    </a>
+    <span
+      [ngStyle]="{
+        'font-weight': 'bold',
+        'font-size': '1.2rem'
+      }"
+      >Mail</span
+    >
+  </div>
+</div>
