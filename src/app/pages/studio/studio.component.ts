@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { navbarPageName } from 'src/app/enum/navbarPageName.enum';
 
 @Component({
-  selector: 'app-pricing',
-  templateUrl: './pricing.component.html',
-  styleUrls: ['./pricing.component.scss'],
+  selector: 'app-studio',
+  templateUrl: './studio.component.html',
+  styleUrls: ['./studio.component.scss'],
 })
-export class PricingComponent {
+export class StudioComponent {
   public navbarPageName = navbarPageName;
 }

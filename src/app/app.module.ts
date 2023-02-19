@@ -8,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 import { ThumbnailSectionComponent } from './components/thumbnail-section/thumbnail-section.component';
 import { TitleLogoComponent } from './components/title-logo/title-logo.component';
 import { AboutComponent } from './pages/about/about.component';
@@ -16,8 +17,7 @@ import { ErrorNotFoundComponent } from './pages/error-not-found/error-not-found.
 import { GalleryNavbarComponent } from './pages/gallery/gallery-navbar/gallery-navbar.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { HomeComponent } from './pages/home/home.component';
-import { PricingComponent } from './pages/pricing/pricing.component';
-import { NavbarComponent } from './components/navbar/navbar.component';
+import { StudioComponent } from './pages/studio/studio.component';
 import { NavbarColorPipe } from './pipes/navbar-color.pipe';
 
 const Components = [
@@ -32,7 +32,13 @@ const Components = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, Components, PricingComponent, NavbarComponent, NavbarColorPipe],
+  declarations: [
+    AppComponent,
+    Components,
+    StudioComponent,
+    NavbarComponent,
+    NavbarColorPipe,
+  ],
   exports: [Components],
   imports: [
     BrowserModule,
