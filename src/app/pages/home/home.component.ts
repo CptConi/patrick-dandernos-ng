@@ -1,6 +1,14 @@
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  query,
+  stagger,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { navbarPageName } from 'src/app/enum/navbarPageName.enum';
 import { LandingPageSection } from 'src/app/models/landing-page-section.model';
 import { HttpService } from 'src/app/services/http.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -28,6 +36,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 export class HomeComponent implements OnInit {
   public landingPageSection: LandingPageSection[] = [];
   public activeCategory = '';
+  public navbarPageName = navbarPageName;
 
   public get screenSize(): string {
     return this.screenSizeService.currentScreenSize;

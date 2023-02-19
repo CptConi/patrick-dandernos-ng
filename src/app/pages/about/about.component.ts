@@ -1,5 +1,12 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
+import { navbarPageName } from 'src/app/enum/navbarPageName.enum';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
@@ -17,6 +24,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
   ],
 })
 export class AboutComponent implements OnInit {
+  public navbarPageName = navbarPageName;
   public get screenSize(): string {
     return this.screenSizeService.currentScreenSize;
   }

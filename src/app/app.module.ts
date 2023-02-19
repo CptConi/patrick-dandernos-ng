@@ -16,6 +16,9 @@ import { ErrorNotFoundComponent } from './pages/error-not-found/error-not-found.
 import { GalleryNavbarComponent } from './pages/gallery/gallery-navbar/gallery-navbar.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { HomeComponent } from './pages/home/home.component';
+import { PricingComponent } from './pages/pricing/pricing.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { NavbarColorPipe } from './pipes/navbar-color.pipe';
 
 const Components = [
   HomeComponent,
@@ -29,7 +32,7 @@ const Components = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, Components],
+  declarations: [AppComponent, Components, PricingComponent, NavbarComponent, NavbarColorPipe],
   exports: [Components],
   imports: [
     BrowserModule,

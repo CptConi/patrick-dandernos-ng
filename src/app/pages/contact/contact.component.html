@@ -1,11 +1,6 @@
 <div class="title-logo"><app-title-logo></app-title-logo></div>
 
-<nav mat-tab-nav-bar color="warn">
-  <a mat-tab-link [routerLink]="'/home'">Accueil</a>
-  <a mat-tab-link [routerLink]="'/about'">À Propos</a>
-  <a mat-tab-link [active]="true">Contact</a>
-</nav>
-
+<app-navbar [isActive]="navbarPageName.CONTACT"></app-navbar>
 <div class="contact-container">
   <p>Vous pouvez retrouver davantage de clichés et activités ici :</p>
   <div class="flex">

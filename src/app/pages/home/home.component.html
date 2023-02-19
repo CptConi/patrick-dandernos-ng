@@ -1,11 +1,6 @@
 <div class="title-logo"><app-title-logo></app-title-logo></div>
 
-<nav mat-tab-nav-bar color="primary">
-  <a mat-tab-link [active]="true">Accueil</a>
-  <a mat-tab-link [routerLink]="'/about'">À Propos</a>
-  <a mat-tab-link [routerLink]="'/contact'">Contact</a>
-</nav>
-
+<app-navbar [isActive]="navbarPageName.HOME"></app-navbar>
 <div
   class="section-container"
   [ngClass]="{

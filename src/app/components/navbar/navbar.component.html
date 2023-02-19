@@ -1,0 +1,26 @@
+<nav mat-tab-nav-bar [color]="isActive | navbarColor">
+  <a
+    mat-tab-link
+    [routerLink]="'/home'"
+    [active]="isActive === navBarPageName.HOME"
+    >Accueil</a
+  >
+  <a
+    mat-tab-link
+    [routerLink]="'/about'"
+    [active]="isActive === navBarPageName.ABOUT"
+    >À Propos</a
+  >
+  <a
+    mat-tab-link
+    [routerLink]="'/contact'"
+    [active]="isActive === navBarPageName.CONTACT"
+    >Contact</a
+  >
+  <a
+    mat-tab-link
+    [routerLink]="'/pricing'"
+    [active]="isActive === navBarPageName.PRICING"
+    >Le Studio</a
+  >
+</nav>

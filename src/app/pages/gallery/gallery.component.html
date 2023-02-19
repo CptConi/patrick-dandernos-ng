@@ -36,10 +36,11 @@
       </button>
       <div class="carousel-img-container">
         <img
+          id="carousel-img"
           *ngIf="pictureList.length > 0"
           [ngClass]="{ 'no-navbar': !isNavBarDisplayed }"
           [src]="pictureList[activePictureIndex].halfSizePath"
-          (load)="onLoadImage($event)"
+          [alt]="pictureList[activePictureIndex].description"
         />
         <div class="carousel-icon-list">
           <button

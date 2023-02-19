@@ -1,10 +1,6 @@
 <div class="title-logo"><app-title-logo></app-title-logo></div>
 
-<nav mat-tab-nav-bar color="accent">
-  <a mat-tab-link [routerLink]="'/home'">Accueil</a>
-  <a mat-tab-link [active]="true">À Propos</a>
-  <a mat-tab-link [routerLink]="'/contact'">Contact</a>
-</nav>
+<app-navbar [isActive]="navbarPageName.ABOUT"></app-navbar>
 
 <div
   class="about-container"
@@ -42,17 +38,17 @@
   </p>
 
   <p>
-    La plupart des portraits sont réalisés en collaboration avec sa muse, Lilli,
-    qui apporte un coté sensible et féminin et contrebalance son coté sombre et
+    La plupart des portraits sont réalisés en collaboration avec sa muse, qui
+    apporte un coté sensible et féminin et contrebalan ce son coté sombre et
     obscur.
   </p>
 
   <p>
     Le portrait réussi transcrit, à ses yeux, une expression qui caractérise le
     modèle vis à vis de ses proches. A la fois ses traits physiques, mais aussi
-    sa posture, ses habitudes de vie, son univers, sa singularité, son
-    caractère. L’échange est primordial lors de la rencontre, il est
-    indispensable de créer un lien de confiance avec le sujet... pour provoquer
-    quelque chose, saisir une expression, une étincelle...
+    sa posture, ses habitudes de vie, son univers, sa singularité, son caractè
+    re. L’échange est primordial lors de la rencontre, il est indispensable de
+    créer un lien de confiance avec le sujet... pour provoquer quelque chose,
+    saisir une expression, une étincelle...
   </p>
 </div>

@@ -5,6 +5,7 @@ import { AboutComponent } from './pages/about/about.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { HomeComponent } from './pages/home/home.component';
+import { PricingComponent } from './pages/pricing/pricing.component';
 
 const routes: Routes = [
   {
@@ -34,6 +35,10 @@ const routes: Routes = [
   {
     path: 'studio-portrait',
     component: GalleryComponent,
+  },
+  {
+    path: 'pricing',
+    component: PricingComponent,
   },
   {
     path: '**',

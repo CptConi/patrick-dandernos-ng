@@ -1,5 +1,18 @@
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
+import {
+  animate,
+  query,
+  stagger,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import FastAverageColor from 'fast-average-color';
 import { take } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
@@ -34,12 +47,14 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
     ]),
   ],
 })
-export class GalleryComponent implements OnInit, AfterViewInit {
+export class GalleryComponent implements OnInit {
   private readonly categoryFromPathname = new Map<string, string>([
     ['/mondes-macros', 'macros'],
     ['/au-cafe-des-graphistes', 'graphistes'],
     ['/studio-portrait', 'portraits'],
   ]);
+
+  @ViewChild('carousel-image') carouselImage: ElementRef<HTMLImageElement>;
   public currentCategory: string;
   public pictureList: any[] = [];
   public indexFullscreenablePicture = -1;
@@ -71,8 +86,6 @@ export class GalleryComponent implements OnInit, AfterViewInit {
         this.pictureList = (galerie as any[]).reverse();
       });
   }
-
-  ngAfterViewInit(): void {}
 
   public setImageFullscreenable(index: number) {
     if (this.indexFullscreenablePicture === index) {
@@ -108,7 +121,7 @@ export class GalleryComponent implements OnInit, AfterViewInit {
     const bg = document.querySelector('body');
     const fac = new FastAverageColor();
     fac
-      .getColorAsync(event.path[0].currentSrc)
+      .getColorAsync(this.carouselImage.nativeElement.src)
       .then((color) => {
         if (bg) {
           bg.style.backgroundImage = 'none';
@@ -126,11 +139,11 @@ export class GalleryComponent implements OnInit, AfterViewInit {
   @HostListener('window:keyup', ['$event'])
   keyEvent(event: KeyboardEvent) {
     if (event.key === 'ArrowRight') {
-      this.previousPicture();
+      this.nextPicture();
     }
 
     if (event.key === 'ArrowLeft') {
-      this.nextPicture();
+      this.previousPicture();
     }
   }
 }
