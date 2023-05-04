@@ -56,7 +56,6 @@ export class HomeComponent implements OnInit {
       .getLandingPagePics()
       .pipe(untilDestroyed(this))
       .subscribe((res) => {
-        console.log(res);
         this.landingPageSection = res as LandingPageSection[];
       });
   }

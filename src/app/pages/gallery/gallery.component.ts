@@ -6,13 +6,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import {
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import FastAverageColor from 'fast-average-color';
 import { take } from 'rxjs/operators';
 import { HttpService } from 'src/app/services/http.service';
@@ -54,7 +48,6 @@ export class GalleryComponent implements OnInit {
     ['/studio-portrait', 'portraits'],
   ]);
 
-  @ViewChild('carousel-image') carouselImage: ElementRef<HTMLImageElement>;
   public currentCategory: string;
   public pictureList: any[] = [];
   public indexFullscreenablePicture = -1;
@@ -117,19 +110,22 @@ export class GalleryComponent implements OnInit {
     this.activePictureIndex = 0;
   }
 
-  public onLoadImage(event: any) {
+  public onLoadImage(target: EventTarget | null) {
+    if (!target || !(target instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const image = target as HTMLImageElement;
     const bg = document.querySelector('body');
     const fac = new FastAverageColor();
     fac
-      .getColorAsync(this.carouselImage.nativeElement.src)
+      .getColorAsync(image.src)
       .then((color) => {
         if (bg) {
           bg.style.backgroundImage = 'none';
           bg.style.backgroundColor = color.rgba;
           bg.style.color = color.isDark ? '#fff' : '#000';
         }
-
-        console.log('Average color', color);
       })
       .catch((e) => {
         console.log(e);
