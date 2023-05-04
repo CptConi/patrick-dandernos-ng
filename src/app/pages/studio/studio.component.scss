@@ -1,3 +1,9 @@
+$breakpoint-xsmall: 0;
+$breakpoint-small: 600px;
+$breakpoint-medium: 960px;
+$breakpoint-large: 1280px;
+$breakpoint-xlarge: 1920px;
+
 .title-logo {
   display: flex;
   width: 100%;
@@ -5,11 +11,30 @@
   align-items: center;
 }
 
+h2 {
+  margin-bottom: 32px;
+  @media (max-width: $breakpoint-medium) {
+    text-align: center;
+  }
+}
+
 .studio-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 30px 200px;
+
+  @media (max-width: $breakpoint-small) {
+    padding: 30px 10px;
+  }
+
+  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    padding: 30px 50px;
+  }
+
+  @media (min-width: $breakpoint-medium) and (max-width: $breakpoint-large) {
+    padding: 30px 100px;
+  }
 }
 
 .top-content {
@@ -21,8 +46,11 @@
   border-radius: 6px;
   max-width: 600px;
   object-fit: cover;
-  box-shadow: 0 0 20px 0 rgba(255, 255, 255, 0.1);
-  opacity: 0.9;
+  box-shadow: 0 0 200px 10px rgba(255, 255, 255, 0.1);
+
+  @media (max-width: ($breakpoint-small )) {
+    max-width: 100%;
+  }
 }
 
 .side-by-side-container {
@@ -38,8 +66,28 @@
 
   & > p,
   > span {
-    padding: 120px;
+    padding: 120px 40px;
     line-height: 22px;
+  }
+
+  @media (max-width: ($breakpoint-large )) {
+    flex-direction: column;
+
+    &.reverse {
+      flex-direction: column;
+    }
+
+    & > p,
+    > span {
+      padding: 20px;
+    }
+  }
+
+  @media (min-width: $breakpoint-small) and (max-width: ($breakpoint-medium )) {
+    & > p,
+    > span {
+      padding: 40px;
+    }
   }
 }
 
