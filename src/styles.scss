@@ -1,13 +1,39 @@
 @import url("https://fonts.googleapis.com/css2?family=Fuggles&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Cinzel&family=Megrim&family=Overlock+SC&display=swap");
-html {
-  scroll-behavior: smooth;
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  color: rgba(230, 230, 230, 0.788);
-  background: linear-gradient(90deg, black 20%, #0d0d0f 100%);
-  transition: background-color 0.4s ease-in;
+  color: rgba(255, 255, 255, 0.88);
+  background: #050506;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid #e9b872;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(233, 184, 114, 0.35);
+  color: #fff;
+}
+
+button {
+  font-family: inherit;
 }

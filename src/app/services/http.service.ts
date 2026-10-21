@@ -1,5 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { RemotePhoto } from '../three/studio.types';
 
 @Injectable({
   providedIn: 'root',
@@ -24,12 +27,13 @@ export class HttpService {
     return this.http.put(`${this.URL}/category`, { id: id });
   }
 
-  public getLandingPagePics() {
-    return this.http.get(`${this.URL}/landingpagepics`);
+  public getLandingPagePics(): Observable<RemotePhoto[]> {
+    return this.http.get<RemotePhoto[]>(`${this.URL}/landingpagepics`);
   }
 
-  public getGalleryFromCategory(category: string) {
-    return this.http.get(`${this.URL}/gallery/${category}`);
+  /** Oldest first, as served by the backend (reverse for newest-first display). */
+  public getGalleryFromCategory(category: string): Observable<RemotePhoto[]> {
+    return this.http.get<RemotePhoto[]>(`${this.URL}/gallery/${category}`);
   }
 
   public getOnePicture(id: number) {
