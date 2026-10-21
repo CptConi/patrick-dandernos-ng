@@ -1,23 +1,46 @@
-# PatrickDandernosNg
+# Patrick d'Andernos — portfolio
 
-Versionning du site Patrick d'Andernos en React.
+Angular 12 + three.js (r150) single-page site. The landing page is a real-time 3D
+reconstruction of the photo studio: pick a section by clicking objects in the room or
+with the arrow keys; photo categories open as a slideshow inside the framed prints on the wall.
 
-P1 > Angular iso React
-P2 > Amélioration UI + better responsiveness
-P3 > Ajouts Features:
+The output is **100 % static files** (`dist/patrick-dandernos-ng`): it is hosted as-is on S3.
 
-- Système de comptes (intégration Oauth Google ?)
-- Possibilité de upvote les photos
-- Possibilité de commenter les photos ( + back-office pour clean / modérer au besoin )
-- Formulaire de contact
+## Develop
 
-Comment mettre à jour le projet ?
+```bash
+npm install --legacy-peer-deps
+npm start            # http://localhost:4200
+```
 
-ng build
+Node 17+ needs `NODE_OPTIONS=--openssl-legacy-provider` for the Angular 12 webpack; the npm scripts already set it.
 
-Puis se rendre sur
-https://s3.console.aws.amazon.com/s3/upload/patrickdandernos.fr?region=eu-west-3
+## Build & deploy (S3 static website)
 
-Delete les anciens fichiers de build puis charger les nouveau générés dans le bucket S3
+```bash
+npm run build
+./scripts/deploy.sh   # aws s3 sync with proper cache headers
+```
 
-process trouvé sur https://levelup.gitconnected.com/learn-how-to-create-and-deploy-the-angular-application-to-aws-serverless-s3-81f8a838b563
+What the script does:
+
+1. hashed bundles (`*.js`, `*.css`) and `assets/` are uploaded with `Cache-Control: public, max-age=31536000, immutable`
+2. `index.html` is uploaded with `Cache-Control: no-cache` so a new release is picked up immediately
+3. old files are removed from the bucket (`--delete`)
+
+Bucket requirements (unchanged from the previous version of the site):
+
+- Static website hosting enabled, **index document** `index.html`
+- **Error document** `index.html` (deep links such as `/mondes-macros`, `/studio`, `/contact` are resolved
+  client-side; S3 answers them with the SPA shell). With CloudFront in front, map 403/404 to `/index.html` with status 200 instead.
+- Public read access (bucket policy) as before
+
+The photo galleries are still served by the existing backend (`http://15.237.23.153:3001`, CORS `*`).
+It is plain HTTP: if the site is ever served over HTTPS (CloudFront + certificate), browsers will block
+those requests as mixed content — put the backend behind HTTPS first and update `src/app/services/http.service.ts`.
+
+## Structure
+
+- `src/app/three/` — the 3D studio: `studio-room.ts` (geometry, props, lights), `studio-scene.ts` (renderer, camera rig, input, slideshow), `studio.types.ts` (shared contract)
+- `src/app/pages/experience/` — Angular overlay: dock navigation, hotspot labels, section panels, slideshow controls
+- `src/app/services/http.service.ts` — backend access
