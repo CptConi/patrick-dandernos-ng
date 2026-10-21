@@ -19,14 +19,18 @@ Node 17+ needs `NODE_OPTIONS=--openssl-legacy-provider` for the Angular 12 webpa
 
 ```bash
 npm run build
-./scripts/deploy.sh   # aws s3 sync with proper cache headers
+./scripts/deploy.sh                 # back up the live site, then deploy
+./scripts/deploy.sh --restore       # roll back: put the latest backup back online
 ```
 
 What the script does:
 
-1. hashed bundles (`*.js`, `*.css`) and `assets/` are uploaded with `Cache-Control: public, max-age=31536000, immutable`
-2. `index.html` is uploaded with `Cache-Control: no-cache` so a new release is picked up immediately
-3. old files are removed from the bucket (`--delete`)
+1. copies the live bucket into `.deploy-backups/<timestamp>/` first (git-ignored, the last 5 are kept; skip with `--no-backup`)
+2. hashed bundles (`*.js`, `*.css`) and `assets/` are uploaded with `Cache-Control: public, max-age=31536000, immutable`
+3. `index.html` is uploaded with `Cache-Control: no-cache` so a new release is picked up immediately
+4. old files are removed from the bucket (`--delete`)
+
+`--restore [dir]` asks for confirmation, then re-publishes a backup (the latest one, or the given directory) with the same cache headers.
 
 Bucket requirements (unchanged from the previous version of the site):
 
