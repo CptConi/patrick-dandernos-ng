@@ -23,6 +23,8 @@ import {
   makePose,
   smoothstep,
 } from './engine/camera-rig';
+import { clampToRoom, maxPullBack } from './engine/camera-bounds';
+import { TiltController } from './engine/tilt';
 import { Photo, TextureStore } from './engine/texture-store';
 import { PostFx } from './engine/postfx';
 import { GardenBlur } from './engine/garden-blur';
@@ -34,6 +36,13 @@ const UP = new THREE.Vector3(0, 1, 0);
 const GALLERY_FOV = 34;
 /** Share of the available viewport the photo should fill in the slideshow. */
 const GALLERY_FILL = 0.82;
+/** Narrow viewports widen the lens instead of backing off across the room: preferred camera distance + widest lens. */
+const GALLERY_DIST = 4.5;
+const GALLERY_FOV_MAX = 70;
+/** Below this viewport aspect the stations pull back (as far as the room allows) and widen the lens. */
+const NARROW_ASPECT = 1.2;
+const PORTRAIT_FOV_MAX = 82;
+const PORTRAIT_FOV_OVERVIEW = 84;
 const FADE = 0.6;
 const MORPH = 0.5;
 const INTRO = 2.8;
@@ -543,14 +552,21 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
     const pw = Math.min(hero.maxWidth, hero.maxHeight * aspect) * 1.04;
     const ph = (pw / aspect);
     const avail = insetAvailable();
-    const tanHalf = Math.tan(THREE.MathUtils.degToRad(GALLERY_FOV) / 2);
-    const dV = ph / (GALLERY_FILL * (avail.h / viewH) * 2 * tanHalf);
-    const dH = pw / (GALLERY_FILL * (avail.w / viewW) * 2 * tanHalf * (viewW / viewH));
-    const dist = clamp(Math.max(dV, dH), 0.5, 4.5);
+    const fillV = GALLERY_FILL * (avail.h / viewH);
+    const fillH = GALLERY_FILL * (avail.w / viewW);
+    // distance x tan(half fov) needed for the photo to fill its share of the available area
+    const need = Math.max(ph / (2 * fillV), pw / (2 * fillH * (viewW / viewH)));
+    let fov = GALLERY_FOV;
+    let dist = need / Math.tan(THREE.MathUtils.degToRad(fov) / 2);
+    if (dist > GALLERY_DIST) {
+      fov = clamp(THREE.MathUtils.radToDeg(2 * Math.atan(need / GALLERY_DIST)), GALLERY_FOV, GALLERY_FOV_MAX);
+      dist = need / Math.tan(THREE.MathUtils.degToRad(fov) / 2);
+    }
+    dist = clamp(dist, 0.5, 4.5);
     const pose = makePose();
     pose.target.fromArray(hero.center);
     pose.position.fromArray(hero.center).addScaledVector(tmpC.fromArray(hero.normal), dist);
-    pose.fov = GALLERY_FOV;
+    pose.fov = fov;
     return pose;
   };
 
@@ -785,6 +801,9 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
   /** Current overview lens shift (share of the viewport height). */
   let lift = 0;
 
+  /** Device-tilt look-around (yaw / pitch offsets added to the view direction, see engine/tilt.ts). */
+  const tilt = new TiltController();
+
   /** Dev-only camera freeze (see window.__studio.look). Null in normal operation. */
   let lookOverride: { pos: THREE.Vector3; target: THREE.Vector3; fov: number } | null = null;
 
@@ -808,18 +827,24 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
     const px = par.x * amp;
     const py = par.y * amp;
 
-    finalPos.copy(rig.position);
+    finalPos.copy(clampToRoom(tmpA.copy(rig.position)));
     finalTarget.copy(rig.target);
     let fov = rig.fov;
 
-    // Narrow / portrait viewports: pull back and widen so the subject is not cropped.
+    // Narrow / portrait viewports: pull back as far as the room allows (never through the roof or the walls), then
+    // widen the lens for the rest so the subject keeps the horizontal coverage of a landscape view.
     const aspect = viewW / viewH;
-    const comp = clamp((1.2 - aspect) / 0.7, 0, 1) * (1 - galleryBlend);
-    if (comp > 0) {
-      finalPos.sub(finalTarget).multiplyScalar(1 + 0.7 * comp).add(finalTarget);
-      roomBox.clampPoint(finalPos, finalPos);
-      // the overview is the widest shot of the room: give it a little more on narrow screens
-      fov = Math.min(76, fov + (currentStation === 'overview' && !gallery ? 26 : 18) * comp);
+    const fit = 1 - galleryBlend;
+    if (aspect < NARROW_ASPECT && fit > 0) {
+      const comp = clamp((NARROW_ASPECT - aspect) / 0.7, 0, 1);
+      const overview = currentStation === 'overview' && !gallery;
+      // the overview camera already sits close to the roof and the entrance wall: it only widens
+      const pull = overview ? 1 : maxPullBack(finalTarget, finalPos, 1 + 0.7 * comp);
+      finalPos.sub(finalTarget).multiplyScalar(1 + (pull - 1) * fit).add(finalTarget);
+      const widen = Math.max(1, NARROW_ASPECT / aspect / pull);
+      const tanHalf = Math.tan(THREE.MathUtils.degToRad(rig.fov) / 2) * (1 + (widen - 1) * fit);
+      fov = Math.min(overview ? PORTRAIT_FOV_OVERVIEW : PORTRAIT_FOV_MAX, THREE.MathUtils.radToDeg(2 * Math.atan(tanHalf)));
+      fov = Math.max(fov, rig.fov);
     }
 
     // 'about': slow cinematic drift (a gentle orbit + dolly around the monitor), off for reduced motion / while travelling
@@ -851,10 +876,17 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
       .addScaledVector(right, px * PARALLAX_POS_X)
       .addScaledVector(upv, py * PARALLAX_POS_Y + Math.sin(time * 0.4) * 0.006 * breathe)
       .addScaledVector(dir, Math.sin(time * 0.27) * 0.012 * breathe);
-    dir.applyAxisAngle(UP, -px * PARALLAX_YAW).applyAxisAngle(right, py * PARALLAX_PITCH);
+    // every offset is in: the position is clamped last, the view direction keeps parallax + device tilt on top
+    clampToRoom(finalPos);
+    const allowTilt = !reduced && !gallery && galleryBlend < 0.01 && !rig.moving;
+    tilt.update(dt, allowTilt);
+    dir.applyAxisAngle(UP, -(px * PARALLAX_YAW + tilt.yaw));
+    right.crossVectors(dir, UP).normalize();
+    dir.applyAxisAngle(right, py * PARALLAX_PITCH + tilt.pitch);
     finalTarget.copy(finalPos).addScaledVector(dir, len);
 
     camera.position.copy(finalPos);
+    camera.up.copy(UP);
     camera.lookAt(finalTarget);
     camera.fov = fov;
     camera.aspect = viewW / viewH;
@@ -941,8 +973,9 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
 
   const projectHotspots = () => {
     // anchors just outside the viewport keep their label, pulled inside so the pill is never cut by the screen edge
+    // (narrow screens need more room: the pills are about as wide as half the viewport)
     const margin = Math.min(56, viewW * 0.08);
-    const padX = Math.min(112, viewW * 0.15);
+    const padX = Math.min(112, viewW * (viewW < 700 ? 0.27 : 0.15));
     const padY = 20;
     for (let i = 0; i < hotspots.length; i++) {
       const v = tmpA.copy(anchors[i]).applyMatrix4(camera.matrixWorldInverse);
@@ -1146,6 +1179,17 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
       gardenBlur,
       governor,
       THREE,
+      /** Simulated device tilt (degrees away from the neutral posture): enables the look-around if needed. */
+      tilt: (gammaDeg: number, betaDeg: number) => tilt.simulate(gammaDeg, betaDeg),
+      get tiltEnabled() {
+        return tilt.enabled;
+      },
+      /** Current tilt offsets in degrees and its fade (0 while travelling / in the slideshow). */
+      tiltState: () => ({
+        yaw: (tilt.yaw * 180) / Math.PI,
+        pitch: (tilt.pitch * 180) / Math.PI,
+        amount: tilt.amount,
+      }),
       /** Freeze the camera rig / parallax at an exact pose (inspection helper). */
       look: (position: [number, number, number], target: [number, number, number], fov?: number) => {
         lookOverride = {
@@ -1274,6 +1318,10 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
       hoverHint = id;
     },
 
+    setTilt(enabled) {
+      tilt.set(enabled);
+    },
+
     goTo(id, opts) {
       if (gallery) {
         leaveGallery();
@@ -1344,6 +1392,7 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
       renderer.setAnimationLoop(null);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('resize', onWindowResize);
+      tilt.dispose();
       document.documentElement.removeEventListener('pointerleave', onPointerLeave);
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('pointerdown', onPointerDown);
@@ -1380,6 +1429,18 @@ export const createStudioScene: CreateStudioScene = (options: StudioSceneOptions
       }
     },
   };
+
+  const devHandle = (window as any).__studio;
+  if (devHandle) {
+    devHandle.api = api;
+    /** One engine frame (camera tests drive it with a fake clock, so they do not depend on requestAnimationFrame). */
+    devHandle.frame = frame;
+    /** Replay the arrival dolly for the current station (camera tests). */
+    devHandle.replayIntro = () => {
+      rig.snapTo(introFrom(desiredPose()));
+      startIntro();
+    };
+  }
 
   return api;
 };
