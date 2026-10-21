@@ -6,7 +6,7 @@ import { CONTACT_Z, buildContactCorner } from './shell-contact';
 import { Noise, makeCeilingTexture } from '../procedural-textures';
 
 /** The room is lengthened at the entrance end by this much (m); the lighting set and the wall dressing follow it. */
-export const ROOM_EXT = 3.5;
+export const ROOM_EXT = 2.6;
 
 /** Room dimensions (meters). Length runs along Z, entrance end at +Z, far end (bay window) at -Z. */
 export const ROOM = {
