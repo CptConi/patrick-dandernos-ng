@@ -1,0 +1,515 @@
+<div
+  class="exp"
+  [class.mobile]="isMobile"
+  [class.touch]="isTouch"
+  [class.in-slideshow]="slideshowOpen"
+  [class.webgl-failed]="webglFailed"
+  [class.ui-idle]="slideshowOpen && !controlsVisible"
+  [class.at-overview]="station === 'overview'"
+>
+  <!-- 3D stage (canvas) / static fallback -->
+  <div class="stage" #stage>
+    <canvas
+      #canvas
+      class="canvas"
+      [class.hidden]="webglFailed"
+      aria-label="Vue 3D du studio photo de Patrick d'Andernos"
+      role="img"
+    ></canvas>
+
+    <div class="fallback-bg" *ngIf="webglFailed" aria-hidden="true">
+      <img src="assets/images/studio-01.jpg" alt="" />
+      <div class="shade"></div>
+    </div>
+
+    <div class="fallback-photo" *ngIf="webglFailed && slideshowOpen && fallbackSrc">
+      <img
+        *ngFor="let src of [fallbackSrc]"
+        [src]="src"
+        [alt]="currentPhoto?.description || currentPhoto?.name || ''"
+      />
+    </div>
+  </div>
+
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="sr-only" aria-live="polite">{{ announce }}</div>
+
+  <!-- Hotspot labels, positioned imperatively every frame (see positionLabels) -->
+  <div class="hotspots" *ngIf="!webglFailed">
+    <div
+      #hs
+      class="hs off"
+      *ngFor="let h of hotspotItems; trackBy: trackById"
+      [attr.data-id]="h.id"
+      [attr.data-mode]="labelMode(h.id)"
+      [class.hover]="hovered === h.id"
+      [class.above]="h.above"
+    >
+      <button
+        type="button"
+        class="hs-btn"
+        [class.cat]="h.isCategory"
+        [attr.aria-label]="'Ouvrir : ' + h.name"
+        [attr.tabindex]="labelMode(h.id) === 'hidden' ? -1 : 0"
+        (click)="onHotspotClick(h.id)"
+        (mouseenter)="hintHover(h.id)"
+        (mouseleave)="hintHover(null)"
+        (focus)="hintHover(h.id)"
+        (blur)="hintHover(null)"
+      >
+        <span class="material-icons hs-icon" aria-hidden="true">{{ h.icon }}</span>
+        <span class="hs-text" [ngStyle]="h.font">{{ h.name }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Logo + corner actions -->
+  <a
+    class="logo"
+    href="/"
+    aria-label="Patrick d'Andernos, retour à l'accueil"
+    [class.gone]="station === 'overview' && !slideshowOpen"
+    (click)="$event.preventDefault(); goTo('overview')"
+    >Patrick d'Andernos…</a
+  >
+
+  <div class="corner">
+    <button
+      *ngIf="fullscreenSupported"
+      type="button"
+      class="icon-btn"
+      [attr.aria-label]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'"
+      [title]="isFullscreen ? 'Quitter le plein écran' : 'Plein écran'"
+      (click)="toggleFullscreen()"
+    >
+      <span class="material-icons" aria-hidden="true">{{
+        isFullscreen ? 'fullscreen_exit' : 'fullscreen'
+      }}</span>
+    </button>
+    <button
+      *ngIf="slideshowOpen"
+      type="button"
+      class="icon-btn"
+      aria-label="Fermer le diaporama"
+      title="Fermer (Échap)"
+      (click)="closeSlideshow()"
+    >
+      <span class="material-icons" aria-hidden="true">close</span>
+    </button>
+  </div>
+
+  <!-- Overview hero -->
+  <section class="hero" [class.show]="station === 'overview' && !slideshowOpen && ready">
+    <h1 class="hero-title">Patrick d'Andernos…</h1>
+    <p class="hero-tagline">Portraits · Macros · Retouches</p>
+    <p class="hero-prompt">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      Choisissez une section dans le studio
+    </p>
+  </section>
+
+  <!-- Station panel -->
+  <div class="panel-wrap" *ngIf="panelKeys.length">
+    <ng-container *ngFor="let key of panelKeys">
+      <aside class="panel" #panel [attr.data-station]="key" tabindex="-1">
+        <!-- Gallery stations -->
+        <ng-container *ngIf="activeCategory && activeInfo as info">
+          <div class="eyebrow">
+            <span class="material-icons" aria-hidden="true">{{ info.icon }}</span>
+            Galerie
+          </div>
+          <h2 class="panel-title" [ngStyle]="info.font">{{ info.name }}</h2>
+          <blockquote class="desc quote" *ngIf="info.isQuote; else plainDesc">
+            {{ info.description }}
+          </blockquote>
+          <ng-template #plainDesc>
+            <p class="desc">{{ info.description }}</p>
+          </ng-template>
+
+          <div class="previews" *ngIf="galleryState[activeCategory] === 'ok'">
+            <img
+              *ngFor="let p of previewThumbs(activeCategory); trackBy: trackByIndex"
+              [src]="p.miniaturePath"
+              alt=""
+              loading="lazy"
+            />
+          </div>
+
+          <p class="count" [ngSwitch]="galleryState[activeCategory]">
+            <span *ngSwitchCase="'loading'" class="shimmer"
+              >Chargement des photographies…</span
+            >
+            <span *ngSwitchCase="'ok'"
+              >{{ photoCount(activeCategory) }}
+              {{ photoCount(activeCategory) > 1 ? 'photographies' : 'photographie' }}</span
+            >
+            <span *ngSwitchCase="'error'" class="error">
+              Galerie momentanément indisponible
+              <button type="button" class="link-btn" (click)="retryActiveGallery()">
+                Réessayer
+              </button>
+            </span>
+          </p>
+
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="galleryState[activeCategory] !== 'ok'"
+            (click)="enterGallery()"
+          >
+            <span>Entrer dans la galerie</span>
+            <span class="badge" *ngIf="photoCount(activeCategory)">{{
+              photoCount(activeCategory)
+            }}</span>
+            <span class="material-icons" aria-hidden="true">arrow_forward</span>
+          </button>
+        </ng-container>
+
+        <!-- Studio -->
+        <ng-container *ngIf="key === 'studio'">
+          <div class="eyebrow">
+            <span class="material-icons" aria-hidden="true">light_mode</span>
+            Tarifs &amp; déroulé
+          </div>
+          <h2 class="panel-title cinzel">Le Studio</h2>
+          <p class="desc">
+            Forfait studio : Réalisation d'environ 10 photos retouchées en haute
+            définition au format numérique. (Fichiers jpeg définition env. 8000
+            x 5300 pixels livrées via Dropbox).
+          </p>
+
+          <article class="step">
+            <img src="assets/images/studio-01.jpg" alt="" loading="lazy" />
+            <h3>Avant le shooting</h3>
+            <p>
+              Nous serons force de proposition et nous prendrons le temps de
+              discuter ensemble de votre projet.
+            </p>
+          </article>
+
+          <article class="step">
+            <img src="assets/images/studio-02.jpg" alt="" loading="lazy" />
+            <h3>Le shooting</h3>
+            <p>
+              Le shooting dure entre 2 et 4 heures. Nous sommes à votre écoute
+              et faisons en sorte de vous mettre à l'aise, en créant un lien et
+              une complicité avec vous. Nous vous proposons plusieurs set-up
+              d'éclairage et vous conseillons sur les tenues ainsi que les
+              accessoires, foulard, chapeau, lunettes que vous aurez
+              apportés....
+            </p>
+          </article>
+
+          <article class="step">
+            <img src="assets/images/studio-04.jpg" alt="" loading="lazy" />
+            <h3>Une équipe de deux</h3>
+            <p>
+              Nous travaillons presque toujours à 2. Nous nous connaissons
+              parfaitement et nous complétons naturellement. Elle, avec sa
+              grande créativité artistique; va vous guider, vous conseiller et
+              vous mettre à l'aise devant l'objectif; lui, l'opérateur discret
+              et, maitrisant parfaitement son matériel professionnel, gère la
+              technique de la prise de vue. Nous sommes là pour faire de cette
+              occasion un moment unique.
+            </p>
+            <p>
+              Infiniment passionnés, nous ne comptons pas notre temps et nos
+              efforts pour obtenir un résultat qui vous satisfera pleinement.
+            </p>
+            <p>
+              La réalisation de portraits en studio est une expérience autant
+              humaine que photographique.
+            </p>
+          </article>
+
+          <article class="step">
+            <img src="assets/images/studio-03.jpg" alt="" loading="lazy" />
+            <h3>L'expérience</h3>
+            <p>
+              Le shooting en atelier photos vous permettra de profiter d’une
+              séance intimiste et personnalisée qui vous promet de passer un
+              moment inoubliable.
+            </p>
+            <p>
+              Il révélera des expressions inattendues faites de spontanéité et
+              d’émotions
+            </p>
+          </article>
+        </ng-container>
+
+        <!-- About -->
+        <ng-container *ngIf="key === 'about'">
+          <span class="portrait"
+            ><img src="assets/images/about-picture-crop.jpg" alt="Patrick d'Andernos"
+          /></span>
+          <div class="eyebrow">
+            <span class="material-icons" aria-hidden="true">info</span>
+            Le photographe
+          </div>
+          <h2 class="panel-title cinzel">À propos</h2>
+          <div class="prose">
+            <p>Patrick d'Andernos...un jeune de 60 ans.</p>
+            <p>
+              Il a été élevé à l'argentique et aux "chasseurs d'images" dès le
+              début des années 80.
+            </p>
+            <p>
+              Ses livres de chevet parlaient de technique ; de boitiers avec
+              moult vistemboirs, boutons et molettes, ainsi que de gros
+              objectifs avec plein de lentilles dedans... Ses lectures
+              l'orientent désormais vers la composition ; l'équilibre, les
+              lignes, l'harmonie qui créent la belle image.
+            </p>
+            <p>
+              Archer depuis 1982, c'est naturellement qu'il immortalise ses
+              compagnons d'arme depuis une douzaine d'année. Il est rapidement
+              accrédité par la Fédération Française de Tir à l'Arc pour couvrir
+              les championnats nationaux.
+            </p>
+            <p>
+              Au fil des années, deux passions émergent naturellement de sa
+              pratique photographique : le portrait et les mondes
+              macroscopiques.
+            </p>
+            <p>
+              En 2016, il aménage un studio à domicile. Il servira aussi bien
+              aux portraits qu'à la mise en scène de mondes lilliputiens.
+            </p>
+            <p>
+              La plupart des portraits sont réalisés en collaboration avec sa
+              muse, qui apporte un coté sensible et féminin et contrebalance
+              son coté sombre et obscur.
+            </p>
+            <p>
+              Le portrait réussi transcrit, à ses yeux, une expression qui
+              caractérise le modèle vis à vis de ses proches. A la fois ses
+              traits physiques, mais aussi sa posture, ses habitudes de vie, son
+              univers, sa singularité, son caractère. L’échange est primordial
+              lors de la rencontre, il est indispensable de créer un lien de
+              confiance avec le sujet... pour provoquer quelque chose, saisir
+              une expression, une étincelle...
+            </p>
+          </div>
+        </ng-container>
+
+        <!-- Contact -->
+        <ng-container *ngIf="key === 'contact'">
+          <div class="eyebrow">
+            <span class="material-icons" aria-hidden="true">mail</span>
+            Échangeons
+          </div>
+          <h2 class="panel-title cinzel">Contact</h2>
+          <p class="desc">
+            Vous pouvez retrouver davantage de clichés et activités ici :
+          </p>
+          <a
+            class="link-card"
+            href="https://www.facebook.com/galeriedarcs"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="lc-logo"
+              ><img src="assets/images/facebook_logo.svg" alt="" width="26" height="26"
+            /></span>
+            <span class="lc-text">
+              <span class="lc-title">Facebook</span>
+              <span class="lc-sub">facebook.com/galeriedarcs</span>
+            </span>
+            <span class="material-icons lc-go" aria-hidden="true">north_east</span>
+          </a>
+          <a
+            class="link-card"
+            href="https://500px.com/p/jules007?view=photos"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="lc-logo"
+              ><img src="assets/images/500px_logo.svg" alt="" width="26" height="26"
+            /></span>
+            <span class="lc-text">
+              <span class="lc-title">500px</span>
+              <span class="lc-sub">500px.com/p/jules007</span>
+            </span>
+            <span class="material-icons lc-go" aria-hidden="true">north_east</span>
+          </a>
+          <p class="desc spaced">Ou encore me contacter :</p>
+          <a
+            class="link-card accent"
+            href="mailto:jules3762@gmail.com?subject=Contact%20depuis%20le%20site%20Patrick%20d'Andernos"
+          >
+            <span class="lc-logo"
+              ><img src="assets/images/email.svg" alt="" width="26" height="26"
+            /></span>
+            <span class="lc-text">
+              <span class="lc-title">Mail</span>
+              <span class="lc-sub">jules3762&#64;gmail.com</span>
+            </span>
+            <span class="material-icons lc-go" aria-hidden="true">north_east</span>
+          </a>
+        </ng-container>
+      </aside>
+    </ng-container>
+  </div>
+
+  <!-- Slideshow overlay -->
+  <div class="slideshow" *ngIf="slideshowOpen" role="region" aria-label="Diaporama">
+    <div class="scrim"></div>
+
+    <button
+      type="button"
+      class="nav-btn prev"
+      aria-label="Photo précédente"
+      (click)="prevPhoto()"
+    >
+      <span class="material-icons" aria-hidden="true">chevron_left</span>
+    </button>
+    <button
+      type="button"
+      class="nav-btn next"
+      aria-label="Photo suivante"
+      (click)="nextPhoto()"
+    >
+      <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </button>
+
+    <div class="spinner" *ngIf="slideLoading" role="status" aria-label="Chargement de la photo"></div>
+    <p class="slide-error" *ngIf="slideError">Cette photo est momentanément indisponible.</p>
+
+    <div class="sl-bottom">
+      <div class="caption" *ngIf="currentPhoto as photo">
+        <div class="caption-name" *ngIf="photo.name" [ngStyle]="activeInfo?.font || null">
+          {{ photo.name }}
+        </div>
+      </div>
+
+      <div class="sl-bar">
+        <span class="counter" aria-live="polite"
+          >{{ photoIndex + 1 }} / {{ slidePhotos.length }}</span
+        >
+        <button
+          type="button"
+          class="sl-btn"
+          [class.on]="autoplay"
+          [attr.aria-pressed]="autoplay"
+          [attr.aria-label]="autoplay ? 'Mettre le diaporama en pause' : 'Lancer le diaporama automatique'"
+          [title]="autoplay ? 'Pause' : 'Lecture automatique'"
+          (click)="toggleAutoplay()"
+        >
+          <svg
+            *ngFor="let k of ringKeys"
+            class="ring"
+            viewBox="0 0 44 44"
+            aria-hidden="true"
+          >
+            <circle cx="22" cy="22" r="20"></circle>
+          </svg>
+          <span class="material-icons" aria-hidden="true">{{
+            autoplay ? 'pause' : 'play_arrow'
+          }}</span>
+        </button>
+        <button
+          type="button"
+          class="sl-btn"
+          aria-label="Ouvrir la photo en haute définition dans un nouvel onglet"
+          title="Haute définition"
+          (click)="openFullSize()"
+        >
+          <span class="material-icons" aria-hidden="true">hd</span>
+        </button>
+        <button
+          type="button"
+          class="sl-btn"
+          [class.on]="thumbsOpen"
+          [attr.aria-pressed]="thumbsOpen"
+          aria-label="Afficher les miniatures"
+          title="Miniatures"
+          (click)="toggleThumbs()"
+        >
+          <span class="material-icons" aria-hidden="true">view_carousel</span>
+        </button>
+      </div>
+
+      <div class="thumbs" #thumbs *ngIf="thumbsOpen">
+        <button
+          type="button"
+          class="thumb"
+          *ngFor="let p of slidePhotos; let i = index; trackBy: trackByIndex"
+          [class.active]="i === photoIndex"
+          [attr.aria-label]="'Photo ' + (i + 1)"
+          [attr.aria-current]="i === photoIndex ? 'true' : null"
+          (click)="setPhoto(i)"
+        >
+          <img [src]="p.miniaturePath" alt="" loading="lazy" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard hint -->
+  <p class="hint" [class.gone]="!hintVisible || isTouch || !ready || slideshowOpen">
+    ← → naviguer · Entrée ouvrir · Échap retour
+  </p>
+
+  <!-- Dock -->
+  <nav class="dock-wrap" aria-label="Sections du site" [class.away]="slideshowOpen">
+    <button
+      type="button"
+      class="dock-arrow"
+      aria-label="Section précédente"
+      title="Section précédente (←)"
+      (click)="stepStation(-1)"
+    >
+      <span class="material-icons" aria-hidden="true">chevron_left</span>
+    </button>
+
+    <div class="dock">
+      <div
+        class="dock-group"
+        *ngFor="let g of dockGroups; trackBy: trackById"
+        role="group"
+        [attr.data-group]="g.id"
+        [attr.aria-label]="g.label"
+      >
+        <button
+          type="button"
+          class="dock-item"
+          *ngFor="let d of g.items; trackBy: trackByIndex"
+          [class.active]="d.meta.id === station"
+          [attr.aria-label]="d.meta.label"
+          [attr.aria-current]="d.meta.id === station ? 'page' : null"
+          [attr.data-label]="d.meta.label"
+          [title]="d.meta.label + ' (' + (d.index + 1) + ')'"
+          (click)="onDockClick(d.meta.id)"
+          (mouseenter)="hintHover(d.meta.id)"
+          (mouseleave)="hintHover(null)"
+          (focus)="hintHover(d.meta.id)"
+          (blur)="hintHover(null)"
+        >
+          <span class="material-icons" aria-hidden="true">{{ d.meta.icon }}</span>
+          <span class="dock-label" [ngStyle]="d.font">{{ d.meta.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="dock-arrow"
+      aria-label="Section suivante"
+      title="Section suivante (→)"
+      (click)="stepStation(1)"
+    >
+      <span class="material-icons" aria-hidden="true">chevron_right</span>
+    </button>
+  </nav>
+
+  <!-- Loader -->
+  <div class="loader" *ngIf="showLoader" [class.done]="ready" role="status" aria-live="polite">
+    <div class="loader-inner">
+      <div class="loader-logo">Patrick d'Andernos…</div>
+      <div class="loader-bar" aria-hidden="true">
+        <span [style.transform]="'scaleX(' + progress + ')'"></span>
+      </div>
+      <div class="loader-sub">Entrée dans le studio</div>
+    </div>
+  </div>
+</div>
