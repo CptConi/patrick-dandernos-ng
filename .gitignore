@@ -40,6 +40,9 @@ yarn-error.log
 testem.log
 /typings
 
+# deploy backups (copies of the live bucket)
+/.deploy-backups
+
 # System Files
 .DS_Store
 Thumbs.db
