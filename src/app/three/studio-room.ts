@@ -572,7 +572,7 @@ export function buildStudioRoom(opts: BuildRoomOptions): StudioRoom {
     macros: wallPose('macros'),
     graphistes: wallPose('graphistes'),
     // well down the room, looking back at the subject: mannequin, backdrops and softboxes
-    studio: pose([0.3, 1.5, MP.z - 6.1], [MP.x - 0.25, 1.2, MP.z - 0.1], 45),
+    studio: pose([0.3, 1.5, MP.z - 4.9], [MP.x - 0.25, 1.2, MP.z - 0.1], 45),
     // over the shoulder of the workstation chair: glowing monitor, the garden window beyond (engine adds a slow drift)
     about: pose([-0.2, 1.8, -2.1], [-2.3, 1.0, -3.75], 54),
     contact: pose([-0.5, 1.48, -2.2], [2.72, 1.12, CONTACT_Z + 0.3], 36),
