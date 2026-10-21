@@ -6,13 +6,15 @@
 #   ./scripts/deploy.sh --no-backup [bucket] [region]      deploy without the backup step
 #   ./scripts/deploy.sh --restore [dir] [bucket] [region]  put a backup back online (default: the latest one)
 #
-# Backups are plain copies of the bucket, stored in .deploy-backups/<timestamp>/ (ignored by git, last 5 kept).
+# Backups are plain copies of the site (access logs excluded), stored in .deploy-backups/<timestamp>/ (ignored by git, last 5 kept).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DIST="$ROOT/dist/patrick-dandernos-ng"
 BACKUPS="$ROOT/.deploy-backups"
 KEEP=5
+# S3 access logs written at the bucket root (logs2021-05-31-...): never backed up, never deleted by --delete.
+PROTECTED=(--exclude "logs*")
 
 MODE="deploy"
 BACKUP=1
@@ -48,7 +50,7 @@ publish() {
 
   # Everything except index.html: content-hashed or rarely changing -> cache for a year.
   aws s3 sync "$src" "s3://$BUCKET" --region "$REGION" --delete \
-    --exclude "index.html" \
+    --exclude "index.html" "${PROTECTED[@]}" \
     --cache-control "public, max-age=31536000, immutable"
 
   # Entry point: always revalidate so a new release is live immediately.
@@ -96,7 +98,7 @@ if [ "$BACKUP" -eq 1 ]; then
   TARGET="$BACKUPS/$STAMP"
   mkdir -p "$TARGET"
   echo "Backing up s3://$BUCKET -> $TARGET"
-  aws s3 sync "s3://$BUCKET" "$TARGET" --region "$REGION" --only-show-errors
+  aws s3 sync "s3://$BUCKET" "$TARGET" --region "$REGION" --only-show-errors "${PROTECTED[@]}"
   if [ ! -f "$TARGET/index.html" ]; then
     # first deploy or empty bucket: nothing worth keeping, and a restore would have nothing to restore
     echo "Nothing to back up (no index.html in the bucket)." >&2
