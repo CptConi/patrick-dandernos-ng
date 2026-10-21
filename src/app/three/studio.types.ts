@@ -162,6 +162,11 @@ export interface StudioSceneApi {
   setDecorPhotos(urls: string[]): void;
   /** Lights the object of a station while the user hovers its HTML button (no effect on the focused station). */
   setHoverHint(id: StationId | null): void;
+  /**
+   * Device-tilt look-around (mobile): when enabled the camera pans a few degrees following the device orientation.
+   * On iOS the caller must have obtained DeviceOrientationEvent permission (user gesture) before enabling it.
+   */
+  setTilt(enabled: boolean): void;
   /** Smooth camera move to a station. Leaves slideshow mode if active. */
   goTo(id: StationId, opts?: { instant?: boolean }): void;
   /**

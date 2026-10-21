@@ -17,6 +17,10 @@ export const ROOM = {
   ridgeH: 3.6,
 };
 
+/** Underside of the gabled roof above a given x (m): wall height at the eaves, ridge height on the centre line. */
+export const roofHeight = (x: number): number =>
+  ROOM.wallH + (ROOM.ridgeH - ROOM.wallH) * (1 - Math.min(1, Math.abs(x) / ROOM.halfW));
+
 export interface ShellTextures {
   floor: THREE.Texture;
   floorDetail: THREE.Texture;
@@ -53,7 +57,7 @@ export function buildShell(k: Kit, tx: ShellTextures): Shell {
   const noise = new Noise(5150);
 
   /* ----- baked occlusion / variation ----- */
-  const roofY = (x: number) => wallH + (ridgeH - wallH) * (1 - Math.min(1, Math.abs(x) / halfW));
+  const roofY = roofHeight;
   const aoAt = (x: number, y: number, z: number, skip: string): number => {
     let a = 1;
     const occ = (d: number, s: number, r: number) => {
